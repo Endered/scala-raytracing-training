@@ -22,6 +22,4 @@ object Util {
   ): T = {
     max(min(x, high), low)
   }
-
-  def color(v: Vector3): Color = Color(v.x, v.y, v.z)
 }
