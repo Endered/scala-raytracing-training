@@ -11,22 +11,25 @@ object Run {
   def rayColor(ray: Ray, world: Hittable, depth: Int): Color = {
     if (depth <= 0) Color(0, 0, 0)
     else
-      world.hit(ray, 0.001, Double.MaxValue) match {
-        case None => {
-          val unitDirection = ray.direction.unit
-          val t = 0.5 * (unitDirection.y + 1.0)
-          (1.0 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0)
-        }
-        case Some(
-              record @ HitRecord(_, _, material, _, _)
-            ) => {
-          material.scatter(ray, record) match {
-            case Some((attenuation, scattered)) =>
-              attenuation * rayColor(scattered, world, depth - 1)
-            case None => Color(0, 0, 0)
+      world
+        .hit(ray, 0.001, Double.MaxValue)
+        .map {
+          case (record @ HitRecord(_, _, material, _, _)) => {
+            material
+              .scatter(ray, record)
+              .map {
+                case (attenuation, scatterd) => {
+                  attenuation * rayColor(scatterd, world, depth - 1)
+                }
+              }
+              .getOrElse(Color(0, 0, 0))
           }
         }
-      }
+        .getOrElse {
+          val unitDirection = ray.direction.unit
+          val t = 0.5 * (unitDirection.y + 1.0)
+          Color.lerp(Color(1.0, 1.0, 1.0), Color(0.5, 0.7, 1.0), t)
+        }
   }
   def randomScene(): Iterable[Hittable] = {
     val materialGround = Lambertian(Color(0.5, 0.5, 0.5))

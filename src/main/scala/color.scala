@@ -36,4 +36,6 @@ object Color {
     Color(Util.random(min, max), Util.random(min, max), Util.random(min, max))
   def random(): Color = random(0, 1)
 
+  def lerp(from: Color, to: Color, t: Double): Color = (1 - t) * from + t * to
+
 }

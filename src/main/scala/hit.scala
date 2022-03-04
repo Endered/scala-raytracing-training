@@ -35,9 +35,7 @@ object Hittable {
   ) extends Hittable {
     def hit(ray: Ray, tMin: Double, tMax: Double): Option[HitRecord] = {
       itr
-        .map(_.hit(ray, tMin, tMax))
-        .filter(_.isDefined)
-        .map(_.get)
+        .flatMap(_.hit(ray, tMin, tMax))
         .toList match {
         case Nil => None
         case v   => Some(v.minBy(_.time))
